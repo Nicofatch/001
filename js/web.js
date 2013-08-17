@@ -8,7 +8,7 @@ app.use("/fonts", express.static(__dirname + '/../fonts'));
 app.use("/js", express.static(__dirname + '/../js'));
 
 app.get('/', function(request, response) {
-    var html = fs.readFileSync('../index.html').toString()
+    var html = fs.readFileSync('./index.html').toString()
     response.send(html);
 });
 
