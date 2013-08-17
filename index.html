@@ -191,10 +191,10 @@
     <script src="js/libs/jquery-1.9.1.js"></script>
     <script src="js/libs/bootstrap.min.js"></script>
     <script src="js/libs/select2.min.js"></script>
-    <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
     <script src="js/libs/handlebars-1.0.0.js"></script>
     <script src="js/libs/ember-1.0.0-rc.7.js"></script>
     <script src="js/app.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
 
     <script language="javascript">
       $(document).ready(function() {
@@ -202,8 +202,17 @@
       placeholder: "Activity"
       }).on("change", function(e) { $('#s2id_inputActivity').css('width','100%'); });
       $('#s2id_inputActivity').css('width','100%');
-      var map = L.map('map').setView([51.505, -0.09], 13);
-      });
+      var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
+
+      var map = L.map('map').setView([51.505, -0.159], 15).addLayer(osm);
+
+      L.marker([51.504, -0.159])
+      .addTo(map)
+      .bindPopup('A pretty CSS3 popup.<br />Easily customizable.')
+      .openPopup();
+     });
     </script>
 
   </body>
