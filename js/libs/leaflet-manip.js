@@ -31,7 +31,7 @@ var SpotMap = (function _SpotMap() {
 
     self.geoLocate = function () {
 	//TODO: cache the location
-	self.map.locate({setView: true, maxZoom: 10});  
+	self.map.locate({setView: true, maxZoom: 15});  
     };
 
     self.onLocationFound = function(e) {
@@ -43,7 +43,8 @@ var SpotMap = (function _SpotMap() {
 	    id: { value: 'geoPosition' },
 	    latitude: { value: e.latlng.lat },
 	    longitude: { value: e.latlng.lng },
-	    label: { value: message }
+	    label: { value: message },
+	    draggable: {value: true }
 	});
 	marker._init();
 	
@@ -74,8 +75,13 @@ var SpotMap = (function _SpotMap() {
     self.addMarker = function(marker) {
 	var oldMarker = self.markers.getItem(marker.id);
 	if (typeof oldMarker === "undefined") {
-	    // Create Leaflet marker
-	    marker.LMarker = L.marker([marker.latitude,marker.longitude]);
+	    
+	    // if marker is draggable
+	    if (marker.draggable) {
+	    	marker.LMarker = L.marker([marker.latitude,marker.longitude],{ draggable: true });
+	    } else {// Create Leaflet marker
+		marker.LMarker = L.marker([marker.latitude,marker.longitude]);
+	    }
 
 	    // Display the marker
 	    marker.LMarker.addTo(self.map);
@@ -84,7 +90,6 @@ var SpotMap = (function _SpotMap() {
 	    if (typeof marker.label != "undefined") {
 		marker.LMarker.bindPopup(marker.label);
 	    }
-	    	
 	    // Update markers hashtable
 	    self.markers.setItem(marker.id, marker);
 	

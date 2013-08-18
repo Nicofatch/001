@@ -62,11 +62,6 @@ App.Spot.FIXTURES = [
     }
 ];
 
-App.SpotController = Ember.ObjectController.extend({
-    
-});
-
-
 App.SpotsNewView = Ember.View.extend({
     templateName: 'spots/new',
     didInsertElement: function() {
@@ -128,5 +123,35 @@ App.SpotView = Ember.View.extend({
 		spotMap.focusOnMarker($(this).find('[role="spot-id"]').text());
 	    });
 	});
+    }
+});
+
+
+App.SpotController = Ember.ObjectController.extend({
+    
+});
+
+
+App.SpotsFindController = Ember.ArrayController.extend({
+    createSpot: function () {
+    // Get the todo title set by the "New Todo" text field
+    /*var title = this.get('newTitle');
+    if (!title.trim()) { return; }
+
+    // Create the new Todo model
+    var todo = Todos.Todo.createRecord({
+    title: title,
+      isCompleted: false
+      });
+
+    // Clear the "New Todo" text field
+    this.set('newTitle', '');
+
+    // Save the new model
+    todo.save();*/  
+    },
+    total: function() {
+	//return this.get('length');
+	return 'nein';
     }
 });
