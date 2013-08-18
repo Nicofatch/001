@@ -38,22 +38,37 @@ var SpotMap = (function _SpotMap() {
 	var radius = e.accuracy / 2;
 	var message = "You are within " + radius + " meters from this point";
 	
+	// Update geoposition coords
+	self.geoPosition.coords.latitude = e.latlng.lat;
+	self.geoPosition.coords.longitude = e.latlng.lng;
+	
 	// Create a new marker
 	var marker = Object.create(Marker, {
 	    id: { value: 'geoPosition' },
 	    latitude: { value: e.latlng.lat },
 	    longitude: { value: e.latlng.lng },
 	    label: { value: message },
-	    draggable: {value: true }
+	    draggable: {value: true },
+	    icon: { value: 'icon-screenshot icon-large' },
+	    color: { value: 'red' }
 	});
 	marker._init();
 	
-	// Add the marker to the map
-	self.addMarker(marker);	 				   
+	// Display the marker
+	marker.LMarker.addTo(self.map);
+	
+	// if specified, display the label in a popup
+	if (typeof marker.label != "undefined") {
+	    marker.LMarker.bindPopup(marker.label);
+	}
+
+	// store the marker
+	self.geoPosition.marker = marker;
+
     };
 
     self.onLocationError = function(e) {
-	
+	//TODO
     };
 
 
@@ -76,13 +91,6 @@ var SpotMap = (function _SpotMap() {
 	var oldMarker = self.markers.getItem(marker.id);
 	if (typeof oldMarker === "undefined") {
 	    
-	    // if marker is draggable
-	    if (marker.draggable) {
-	    	marker.LMarker = L.marker([marker.latitude,marker.longitude],{ draggable: true });
-	    } else {// Create Leaflet marker
-		marker.LMarker = L.marker([marker.latitude,marker.longitude]);
-	    }
-
 	    // Display the marker
 	    marker.LMarker.addTo(self.map);
 	    
@@ -93,7 +101,8 @@ var SpotMap = (function _SpotMap() {
 	    // Update markers hashtable
 	    self.markers.setItem(marker.id, marker);
 	
-	} else {
+	}
+	/*else {
 	    // Marker already exists
 	    if ((oldMarker.longitude != marker.longitude) || (oldMarker.latitude != marker.latitude)) {
 		console.log('existe deja');
@@ -106,17 +115,17 @@ var SpotMap = (function _SpotMap() {
 		// Store the new marker
 		self.markers.setItem(_marker.id, marker);
 	    }
-	}
+	}*/
     };
 
-    self.clear = function() {
-        
-	// Remove all markers from the map
+    self.clear = function(options) {
+	// Loop on all markers
 	self.markers.each(function(k,marker) {
-	    self.map.removeLayer(marker.LMarker);
+	    // Remove marker from map
+	    marker.clear(self.map);
+	    // Remove marker from hashtable
+	    self.markers.removeItem(k);
 	});
-	// Remove all markers from the list
-	self.markers.clear();
     };
 
     return self;    
@@ -128,9 +137,31 @@ var Marker = (function _Marker() {
     var self = Object.create({});    
 
     self._init = function _init() {
+	
+	var options = {};
 
-	return self;
+	// if marker is draggable
+	if (this.draggable)
+	    options.draggable = true;
+	
+	// if a special icon has been specified
+	if (this.icon && this.color) {
+	    var icon = L.AwesomeMarkers.icon({
+		icon: this.icon, 
+		color: this.color
+	    })
+	    options.icon = icon;
+	}
+	
+	// Create Leaflet marker
+	this.LMarker = L.marker([this.latitude,this.longitude], options);
+
+	return this;
     };
+
+    self.clear = function(map) {
+	map.removeLayer(this.LMarker);
+    }
     
     return self;
 }());

@@ -16,13 +16,28 @@ App.Store = DS.Store.extend({
 });
 
 App.SpotsRoute = Ember.Route.extend({
-    
+    /*setupController: function(controller, spot) {
+	controller.set('model', spot);
+    }*/
 });
 
 App.SpotsFindRoute = Ember.Route.extend({
-    model:function(params){
+    /*model:function(params){
 	return App.Spot.find();
+    },*/
+    setupController: function(controller) {
+	controller.set('model', App.Spot.find());
     }
+});
+
+App.SpotRoute = Ember.Route.extend({
+    setupController: function(controller,spot) {
+	controller.set('model',spot);
+    }
+});
+
+App.IndexRoute = Ember.Route.extend({
+    // Loading screen
 });
 
 App.SpotsNewRoute = Ember.Route.extend({
@@ -68,8 +83,12 @@ App.SpotsNewView = Ember.View.extend({
 	Ember.run.schedule('afterRender',function(){
 
 	    // Remove all existing markers on the map
-	    SpotMap.clear();
-	    SpotMap.geoLocate();
+	    spotMap.clear();
+
+	    // If the current position is not already displayed, launch a new geoLocation
+	    if (typeof spotMap.geoPosition.marker === "undefined") {
+		spotMap.geoLocate();
+	    }
 
 	    // Initialize the multi-select input "activity"
 	    $("#inputActivity").select2({
@@ -97,8 +116,6 @@ App.SpotsFindView = Ember.View.extend({
     templateName: 'spots/find',
     didInsertElement: function() {
 	spotMap.clear();
-	spotMap.geoLocate();
-	
     }
 
 });
@@ -114,44 +131,36 @@ App.SpotView = Ember.View.extend({
 		latitude: { value: $(this).find('[role=spot-latitude]').text() },
 		longitude: { value: $(this).find('[role=spot-longitude]').text() }
 	    });
-	    //marker._init();
+	    marker._init();
 	    // Add the marker to the map
 	    spotMap.addMarker(marker);
-
-	    // When an item is clicked, focus on its marker	    
-	    $(this).click(function(){
-		spotMap.focusOnMarker($(this).find('[role="spot-id"]').text());
-	    });
 	});
-    }
+	/* Check if all the markers have been added, in order to scale the map view */
+	if (spotMap.markers.length == this.get('controller').get('controllers.spotsFind').get('length')) {
+	
+	}
+	    // Center the view
+	    
+    },
+    eventManager: Ember.Object.create({
+	click: function(event) {
+	    // When an item is clicked, focus on its marker	    
+	    spotMap.focusOnMarker($(event.currentTarget).find('[role="spot-id"]').text());
+	}
+    })
 });
 
 
 App.SpotController = Ember.ObjectController.extend({
-    
+    needs: ['spotsFind']
 });
 
 
 App.SpotsFindController = Ember.ArrayController.extend({
-    createSpot: function () {
-    // Get the todo title set by the "New Todo" text field
-    /*var title = this.get('newTitle');
-    if (!title.trim()) { return; }
-
-    // Create the new Todo model
-    var todo = Todos.Todo.createRecord({
-    title: title,
-      isCompleted: false
-      });
-
-    // Clear the "New Todo" text field
-    this.set('newTitle', '');
-
-    // Save the new model
-    todo.save();*/  
+    addSpot: function() {
+	 
     },
     total: function() {
-	//return this.get('length');
-	return 'nein';
-    }
+	return this.spot.length;
+    }.property('this.length')
 });
