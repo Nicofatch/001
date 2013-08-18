@@ -3,10 +3,10 @@ var SpotMap = (function _SpotMap() {
     
     self.markers = new HashTable();
     self.geoPosition = {
-	    coords:{
+	    /*coords:{
 		latitude:0,
 		longitude:0
-	    }
+	    }*/
     };
     self.map = {};
 
@@ -34,13 +34,26 @@ var SpotMap = (function _SpotMap() {
 	self.map.locate({setView: true, maxZoom: 15});  
     };
 
+    self.centerOnGeoPosition = function() {
+	self.map.panTo([self.geoPosition.marker.LMarker._latlng.lat,self.geoPosition.marker.LMarker._latlng.lng],15);
+    };
+
+    self.removeGeoMarker = function() {
+	self.geoPosition.marker.clear(self.map);
+    };
+
+    self.fitOnBounds = function () {
+	// Center the map on the displayed markers
+	self.map.fitBounds(self.bounds);
+    };
+    
     self.onLocationFound = function(e) {
 	var radius = e.accuracy / 2;
 	var message = "You are within " + radius + " meters from this point";
 	
 	// Update geoposition coords
-	self.geoPosition.coords.latitude = e.latlng.lat;
-	self.geoPosition.coords.longitude = e.latlng.lng;
+	//self.geoPosition.coords.latitude = e.latlng.lat;
+	//self.geoPosition.coords.longitude = e.latlng.lng;
 	
 	// Create a new marker
 	var marker = Object.create(Marker, {
@@ -100,7 +113,9 @@ var SpotMap = (function _SpotMap() {
 	    }
 	    // Update markers hashtable
 	    self.markers.setItem(marker.id, marker);
-	
+
+            // update the map bounds
+            self.bounds.push(marker.LMarker._latlng);
 	}
 	/*else {
 	    // Marker already exists
@@ -126,6 +141,8 @@ var SpotMap = (function _SpotMap() {
 	    // Remove marker from hashtable
 	    self.markers.removeItem(k);
 	});
+	// Reset the map bounds, used to adjust the view
+	self.bounds = [];
     };
 
     return self;    

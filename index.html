@@ -43,7 +43,6 @@
 	      </button>
 	      <a class="navbar-brand" href="#" style="font-family: 'Grand Hotel', cursive;font-size:2em;">Spotly</a>
 	    </div>
-
 	    <div class="collapse navbar-collapse navbar-ex1-collapse">
 	      <ul class="nav navbar-nav">
 		<li>{{#linkTo 'spots.new'}}<i class="icon-map-marker"></i> New Spot</li>{{/linkTo}}
@@ -119,7 +118,7 @@
 	{{#each controller itemController="spot"}}
 	{{#view App.SpotView}}
 	<a class="list-group-item" role="spot-item">
-	  <h4 class="list-group-item-heading">{{title}} - {{note}}</h4>
+	  <h4 class="list-group-item-heading">{{title}}</h4>
 	  <p class="list-group-item-text">{{description}}</p>
 	  <p class="hide" role="spot-longitude">{{longitude}}</p>
 	  <p class="hide" role="spot-latitude">{{latitude}}</p>
@@ -136,7 +135,7 @@
 	<div class="form-group">
 	  <label for="inputName" class="sr-only">Name</label>
 	  <div class="col-lg-6">
-	    <input type="text" class="form-control" id="inputName" placeholder="Name">
+	    {{view Ember.TextField id="inputName" placeholder="Name" valueBinding="newTitle" class="form-control"}}
 	  </div>
 	</div>
 	<div class="form-group">
@@ -204,12 +203,12 @@
 	<div class="form-group">
 	  <label for="inputDescription" class="sr-only">Description</label>
 	  <div class="col-lg-6">
-	    <textarea rows="3" class="form-control" id="inputDescription" placeholder="Description"></textarea>
+	    {{view Ember.TextArea id="inputDescription" rows="3" placeholder="Description" valueBinding="newDescription" class="form-control"}}
 	  </div>
 	</div>
 	<div class="form-group">
 	  <div class="col-lg-6">
-	    <button type="submit" class="btn btn-primary">Add Spot</button>
+	    <button {{action "addSpot"}} class="btn btn-primary">Add Spot</button>
 	  </div>
 	</div>
       </form>

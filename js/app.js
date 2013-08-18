@@ -30,7 +30,7 @@ App.SpotsFindRoute = Ember.Route.extend({
     }
 });
 
-App.SpotRoute = Ember.Route.extend({
+App.SpotsNewRoute = Ember.Route.extend({
     setupController: function(controller,spot) {
 	controller.set('model',spot);
     }
@@ -38,10 +38,6 @@ App.SpotRoute = Ember.Route.extend({
 
 App.IndexRoute = Ember.Route.extend({
     // Loading screen
-});
-
-App.SpotsNewRoute = Ember.Route.extend({
-
 });
 
 /*App.SpotRoute = Ember.Route.extend({
@@ -87,7 +83,13 @@ App.SpotsNewView = Ember.View.extend({
 
 	    // If the current position is not already displayed, launch a new geoLocation
 	    if (typeof spotMap.geoPosition.marker === "undefined") {
+		// The geoLocate function will calculate the position and then center the map on it
 		spotMap.geoLocate();
+	    }
+	    else
+	    {
+		// Just center the map on the geoPosition
+		spotMap.centerOnGeoPosition();
 	    }
 
 	    // Initialize the multi-select input "activity"
@@ -135,11 +137,11 @@ App.SpotView = Ember.View.extend({
 	    // Add the marker to the map
 	    spotMap.addMarker(marker);
 	});
-	/* Check if all the markers have been added, in order to scale the map view */
+	// Check if all the markers have been added
 	if (spotMap.markers.length == this.get('controller').get('controllers.spotsFind').get('length')) {
-	
+	    // Fit the map on bounds
+	    spotMap.fitOnBounds();
 	}
-	    // Center the view
 	    
     },
     eventManager: Ember.Object.create({
@@ -150,6 +152,36 @@ App.SpotView = Ember.View.extend({
     })
 });
 
+App.SpotsNewController = Ember.Controller.extend({
+
+    addSpot: function() {
+	// Get the "title" text field
+	var title = this.get('newTitle');
+
+	if (!title.trim()) { return; }
+
+	// Get the "description" text field
+	var description = this.get('newDescription');
+
+	// Create the spot model
+	var spot = App.Spot.createRecord({
+	    title: title,
+	    description: description,
+	    longitude: spotMap.geoPosition.marker.LMarker._latlng.lng,
+	    latitude: spotMap.geoPosition.marker.LMarker._latlng.lat
+	});
+
+	// Save the model
+	spot.save();
+
+	// TODO: Display the newly created spot
+
+	// Remove the geo marker
+	spotMap.removeGeoMarker();
+	// Display all the spots
+	this.transitionToRoute('spots.find');
+    }
+});
 
 App.SpotController = Ember.ObjectController.extend({
     needs: ['spotsFind']
@@ -157,10 +189,5 @@ App.SpotController = Ember.ObjectController.extend({
 
 
 App.SpotsFindController = Ember.ArrayController.extend({
-    addSpot: function() {
-	 
-    },
-    total: function() {
-	return this.spot.length;
-    }.property('this.length')
+    
 });
