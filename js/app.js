@@ -101,8 +101,9 @@ App.SpotsFindView = Ember.View.extend({
     
     templateName: 'spots/find',
     didInsertElement: function() {
-	SpotMap.clear();
-	SpotMap.geoLocate();
+	spotMap.clear();
+	spotMap.geoLocate();
+	
     }
 
 });
@@ -121,7 +122,11 @@ App.SpotView = Ember.View.extend({
 	    //marker._init();
 	    // Add the marker to the map
 	    spotMap.addMarker(marker);
-	    
+
+	    // When an item is clicked, focus on its marker	    
+	    $(this).click(function(){
+		spotMap.focusOnMarker($(this).find('[role="spot-id"]').text());
+	    });
 	});
     }
 });

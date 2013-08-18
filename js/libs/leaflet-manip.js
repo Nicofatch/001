@@ -52,7 +52,13 @@ var SpotMap = (function _SpotMap() {
     };
 
     self.onLocationError = function(e) {
-	alert(e.message);
+	
+    };
+
+
+    self.focusOnMarker = function(id) {
+	// Pan the map to the marker (smooth move)
+	self.map.panTo(new L.LatLng(self.markers.getItem(id).latitude, self.markers.getItem(id).longitude));
     };
 
     self.displayMap = function(position) {
