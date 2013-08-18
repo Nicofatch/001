@@ -24,7 +24,7 @@ var SpotMap = (function _SpotMap() {
 	// Set the event receivers
 	self.map.on('locationfound',self.onLocationFound);
 	self.map.on('locationerror',self.onLocationError);
-	
+	self.map.setView([0,0],1);
 	// Get geolocation and center the map
 	//self.geoLocate();
     };
