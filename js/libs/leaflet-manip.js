@@ -71,35 +71,35 @@ var SpotMap = (function _SpotMap() {
 	}
     };
 
-    self.addMarker = function(_marker) {
-	var oldMarker = self.markers.getItem(_marker.id);
+    self.addMarker = function(marker) {
+	var oldMarker = self.markers.getItem(marker.id);
 	if (typeof oldMarker === "undefined") {
 	    // Create Leaflet marker
-	    _marker.LMarker = L.marker([_marker.latitude,_marker.longitude]);
+	    marker.LMarker = L.marker([marker.latitude,marker.longitude]);
 
 	    // Display the marker
-	    _marker.LMarker.addTo(self.map);
+	    marker.LMarker.addTo(self.map);
 	    
 	    // if specified, display the label in a popup
-	    if (typeof _marker.label != "undefined") {
-		_marker.LMarker.bindPopup(_marker.label);
+	    if (typeof marker.label != "undefined") {
+		marker.LMarker.bindPopup(marker.label);
 	    }
 	    	
 	    // Update markers hashtable
-	    self.markers.setItem(_marker.id, _marker);
+	    self.markers.setItem(marker.id, marker);
 	
 	} else {
 	    // Marker already exists
-	    if ((oldMarker.longitude != _marker.longitude) || (oldMarker.latitude != _marker.latitude)) {
+	    if ((oldMarker.longitude != marker.longitude) || (oldMarker.latitude != marker.latitude)) {
 		console.log('existe deja');
 		// Move the existing marker
-		var lat = (_marker.latitude);
-		var lng = (_marker.longitude);
+		var lat = (marker.latitude);
+		var lng = (marker.longitude);
 		var newLatLng = new L.LatLng(lat, lng);
 		oldMarker.LMarker.setLatLng(newLatLng); 
 
 		// Store the new marker
-		self.markers.setItem(_marker.id, _marker);
+		self.markers.setItem(_marker.id, marker);
 	    }
 	}
     };
