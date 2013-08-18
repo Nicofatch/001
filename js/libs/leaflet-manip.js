@@ -1,68 +1,208 @@
-function getGeolocation() {
-    if (navigator.geolocation) {
-	navigator.geolocation.getCurrentPosition(displayMap,handleLocationError,{timeout:50000});
-    }
-}
-
-function displayMap(position)
-{
-    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
+var SpotMap = (function _SpotMap() {
+    var self = Object.create({});
     
-    /* First Initialization */
-    if (typeof map === "undefined")
-	map = L.map('map').addLayer(osm);
-
-    map.setView([position.coords.latitude, position.coords.longitude], 15);
-}
-
-function addMarker(coordinates)
-{
-    if (typeof map === "undefined")
-    {
-	displayMap({
-	    coords:
-	    {
-		latitude:coordinates.latitude,
-		longitude:coordinates.longitude
+    self.markers = new HashTable();
+    self.geoPosition = {
+	    coords:{
+		latitude:0,
+		longitude:0
 	    }
+    };
+    self.map = {};
+
+    self._init = function _init() {
+
+	// Create the map
+	self.map = L.map(this.map_id);
+
+	// Set the legend
+	var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+	osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
+	osm.addTo(self.map);
+
+	// Set the event receivers
+	self.map.on('locationfound',self.onLocationFound);
+	self.map.on('locationerror',self.onLocationError);
+	
+	// Get geolocation and center the map
+	//self.geoLocate();
+    };
+
+    self.geoLocate = function () {
+	//TODO: cache the location
+	self.map.locate({setView: true, maxZoom: 10});  
+    };
+
+    self.onLocationFound = function(e) {
+	var radius = e.accuracy / 2;
+	var message = "You are within " + radius + " meters from this point";
+	
+	// Create a new marker
+	var marker = Object.create(Marker, {
+	    id: { value: 'geoPosition' },
+	    latitude: { value: e.latlng.lat },
+	    longitude: { value: e.latlng.lng },
+	    label: { value: message }
 	});
-	addMarker(coordinates);
-    }
-    L.marker([coordinates.latitude, coordinates.longitude])
-	.addTo(map);
-    // .bindPopup('A pretty CSS3 popup.<br />Easily customizable.')
-    // .openPopup();
-}
+	marker._init();
+	
+	// Add the marker to the map
+	self.addMarker(marker);	 				   
+    };
 
-function handleLocationError(error)
+    self.onLocationError = function(e) {
+	alert(e.message);
+    };
+
+    self.displayMap = function(position) {
+	if (typeof position === "undefined") {
+	    //If no position is specified, load geoCoords
+	    self.map.setView([self.geoPosition.coords.latitude, self.geoPosition.coords.longitude], 10);
+	}    
+	else {
+	    self.map.setView([position.coords.latitude, position.coords.longitude], 10);
+	}
+    };
+
+    self.addMarker = function(_marker) {
+	var oldMarker = self.markers.getItem(_marker.id);
+	if (typeof oldMarker === "undefined") {
+	    // Create Leaflet marker
+	    _marker.LMarker = L.marker([_marker.latitude,_marker.longitude]);
+
+	    // Display the marker
+	    _marker.LMarker.addTo(self.map);
+	    
+	    // if specified, display the label in a popup
+	    if (typeof _marker.label != "undefined") {
+		_marker.LMarker.bindPopup(_marker.label);
+	    }
+	    	
+	    // Update markers hashtable
+	    self.markers.setItem(_marker.id, _marker);
+	
+	} else {
+	    // Marker already exists
+	    if ((oldMarker.longitude != _marker.longitude) || (oldMarker.latitude != _marker.latitude)) {
+		console.log('existe deja');
+		// Move the existing marker
+		var lat = (_marker.latitude);
+		var lng = (_marker.longitude);
+		var newLatLng = new L.LatLng(lat, lng);
+		oldMarker.LMarker.setLatLng(newLatLng); 
+
+		// Store the new marker
+		self.markers.setItem(_marker.id, _marker);
+	    }
+	}
+    };
+
+    self.clear = function() {
+        
+	// Remove all markers from the map
+	self.markers.each(function(k,marker) {
+	    self.map.removeLayer(marker.LMarker);
+	});
+	// Remove all markers from the list
+	self.markers.clear();
+    };
+
+    return self;    
+}());
+
+
+var Marker = (function _Marker() {
+
+    var self = Object.create({});    
+
+    self._init = function _init() {
+
+	return self;
+    };
+    
+    return self;
+}());
+
+function HashTable(obj)
 {
-    switch(error.code)
+    this.length = 0;
+    this.items = {};
+    for (var p in obj) {
+        if (obj.hasOwnProperty(p)) {
+            this.items[p] = obj[p];
+            this.length++;
+        }
+    }
+
+    this.setItem = function(key, value)
     {
-    case 0:
-	updateStatus("There was an error while retrieving your location: " + error.message);
-	break;
+        var previous = undefined;
+        if (this.hasItem(key)) {
+            previous = this.items[key];
+        }
+        else {
+            this.length++;
+        }
+        this.items[key] = value;
+        return previous;
+    }
 
-    case 1:
-	updateStatus("The user prevented this page from retrieving the location.");
-	break;
+    this.getItem = function(key) {
+        return this.hasItem(key) ? this.items[key] : undefined;
+    }
 
-    case 2:
-	updateStatus("The browser was unable to determine your location: " + error.message);
+    this.hasItem = function(key)
+    {
+        return this.items.hasOwnProperty(key);
+    }
+   
+    this.removeItem = function(key)
+    {
+        if (this.hasItem(key)) {
+            previous = this.items[key];
+            this.length--;
+            delete this.items[key];
+            return previous;
+        }
+        else {
+            return undefined;
+        }
+    }
 
-	break;
+    this.keys = function()
+    {
+        var keys = [];
+        for (var k in this.items) {
+            if (this.hasItem(k)) {
+                keys.push(k);
+            }
+        }
+        return keys;
+    }
 
-    case 3:
+    this.values = function()
+    {
+        var values = [];
+        for (var k in this.items) {
+            if (this.hasItem(k)) {
+                values.push(this.items[k]);
+            }
+        }
+        return values;
+    }
 
-	updateStatus("The browser timed out before retrieving the location.");
+    this.each = function(fn) {
+        for (var k in this.items) {
+            if (this.hasItem(k)) {
+                fn(k, this.items[k]);
+            }
+        }
+    }
 
-	break;
+    this.clear = function()
+    {
+        this.items = {}
+        this.length = 0;
     }
 }
-
-function updateStatus(msg)
-{
-    document.getElementById("appStatus").innerHTML = msg;
-}
-
