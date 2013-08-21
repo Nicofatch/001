@@ -116,18 +116,39 @@
       <div id="spots-length" class="hide">{{length}}</div>
       <div class="list-group" style="margin-top:20px;">
 	{{#each controller itemController="spot"}}
-	{{#view App.SpotView}}
-	<a class="list-group-item" role="spot-item">
+	{{view App.SpotOverviewView}}
+	{{/each}}
+      </div>
+    </script>
+    
+    <script type="text/x-handlebars" data-template-name="spots/spot">
+      <div class="list-group" style="margin-top:20px;">
+	{{view App.SpotDetailView}}
+      </div>
+    </script>
+
+    
+    <script type="text/x-handlebars" data-template-name="spot-overview">
+      	<a class="list-group-item" role="spot-item">
 	  <h4 class="list-group-item-heading">{{title}}</h4>
 	  <p class="list-group-item-text">{{description}}</p>
 	  <p class="hide" role="spot-longitude">{{longitude}}</p>
 	  <p class="hide" role="spot-latitude">{{latitude}}</p>
   	  <p class="hide" role="spot-id">{{id}}</p>
 	</a>
-	{{/view}}
-	{{/each}}
-      </div>
     </script>
+
+    <script type="text/x-handlebars" data-template-name="spot-detail">
+      	<a class="list-group-item" role="spot-item">
+	  <h4 class="list-group-item-heading">{{title}}</h4>
+	  <p class="list-group-item-text">{{description}}</p>
+	  <p class="hide" role="spot-longitude">{{longitude}}</p>
+	  <p class="hide" role="spot-latitude">{{latitude}}</p>
+  	  <p class="hide" role="spot-id">{{id}}</p>
+	</a>
+    </script>
+
+    
 
     <script type="text/x-handlebars" data-template-name="spots/new">
       <h2><i class="icon-large icon-map-marker"></i> New Spot</h2>

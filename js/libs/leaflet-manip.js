@@ -31,15 +31,18 @@ var SpotMap = (function _SpotMap() {
 
     self.geoLocate = function () {
 	//TODO: cache the location
-	self.map.locate({setView: true, maxZoom: 15});  
+	self.map.locate({setView: true, maxZoom: 18});  
     };
 
     self.centerOnGeoPosition = function() {
-	self.map.panTo([self.geoPosition.marker.LMarker._latlng.lat,self.geoPosition.marker.LMarker._latlng.lng],15);
+	self.map.panTo([self.geoPosition.marker.LMarker._latlng.lat,self.geoPosition.marker.LMarker._latlng.lng]);
     };
 
     self.removeGeoMarker = function() {
+	// Remove the marker
 	self.geoPosition.marker.clear(self.map);
+	// Clean the object
+	self.geoPosition = {};
     };
 
     self.fitOnBounds = function () {
@@ -85,9 +88,9 @@ var SpotMap = (function _SpotMap() {
     };
 
 
-    self.focusOnMarker = function(id) {
+    self.centerOnMarker = function(id) {
 	// Pan the map to the marker (smooth move)
-	self.map.panTo(new L.LatLng(self.markers.getItem(id).latitude, self.markers.getItem(id).longitude));
+	self.map.panTo(self.markers.getItem(id).LMarker._latlng);
     };
 
     self.displayMap = function(position) {
@@ -144,6 +147,7 @@ var SpotMap = (function _SpotMap() {
 	// Reset the map bounds, used to adjust the view
 	self.bounds = [];
     };
+
 
     return self;    
 }());

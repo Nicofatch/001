@@ -3,6 +3,7 @@ App = Ember.Application.create();
 App.Router.map(function () {
     this.resource('index', { path: '/' });
     this.resource('spots', function() {
+	this.route('spot', {path: ':spot_id'});
 	this.route('new');
 	this.route('find');
     });
@@ -19,6 +20,12 @@ App.SpotsRoute = Ember.Route.extend({
     /*setupController: function(controller, spot) {
 	controller.set('model', spot);
     }*/
+});
+
+App.SpotsSpotRoute = Ember.Route.extend({
+    setupController: function(controller, spot) {
+	controller.set('model', spot);
+    }
 });
 
 App.SpotsFindRoute = Ember.Route.extend({
@@ -70,7 +77,47 @@ App.Spot.FIXTURES = [
 	sports:'cinema',
 	longitude:2.242201,
 	latitude:48.8649466
-    }
+    }/*,
+    {
+	id:3,
+	title:'cinema de suresnes',
+	description:'Le meilleur cinema du grand Ouest',
+	sports:'cinema',
+	longitude:2.242201,
+	latitude:48.7649466
+    },
+    {
+	id:4,
+	title:'cinema de suresnes',
+	description:'Le meilleur cinema du grand Ouest',
+	sports:'cinema',
+	longitude:2.342201,
+	latitude:48.7649466
+    },
+    {
+	id:5,
+	title:'cinema de suresnes',
+	description:'Le meilleur cinema du grand Ouest',
+	sports:'cinema',
+	longitude:2.142201,
+	latitude:48.7649466
+    },
+    {
+	id:6,
+	title:'cinema de suresnes',
+	description:'Le meilleur cinema du grand Ouest',
+	sports:'cinema',
+	longitude:2.142201,
+	latitude:48.8649466
+    },
+    {
+	id:7,
+	title:'cinema de suresnes',
+	description:'Le meilleur cinema du grand Ouest',
+	sports:'cinema',
+	longitude:2.242201,
+	latitude:48.8249466
+    }*/
 ];
 
 App.SpotsNewView = Ember.View.extend({
@@ -114,17 +161,37 @@ App.SpotsView = Ember.View.extend({
 });
 
 App.SpotsFindView = Ember.View.extend({
-    
     templateName: 'spots/find',
     didInsertElement: function() {
 	spotMap.clear();
     }
-
 });
 
-App.SpotView = Ember.View.extend({
+App.SpotDetailView = Ember.View.extend({
+    templateName:'spot-detail',
     didInsertElement: function() {
-	
+	// Clear the map
+	spotMap.clear();
+	this.$('[role="spot-item"]').each(function() {
+	    // Create a marker
+	    var marker = Object.create(Marker, {
+		id: { value: $(this).find('[role=spot-id]').text() },
+		latitude: { value: $(this).find('[role=spot-latitude]').text() },
+		longitude: { value: $(this).find('[role=spot-longitude]').text() }
+	    });
+	    marker._init();
+	    // Add the marker to the map
+	    spotMap.addMarker(marker);
+	    // Center the map on the marker
+	    spotMap.centerOnMarker(marker.id);
+	});
+    }
+});
+
+App.SpotOverviewView = Ember.View.extend({
+    templateName: 'spot-overview',
+    didInsertElement: function() {
+	//console.log(this.get('controller').get('controllers.spotsFind').get('length'));
 	/* Display markers for each spot */
         this.$('[role="spot-item"]').each(function() {
 	    // Create a marker
@@ -139,6 +206,9 @@ App.SpotView = Ember.View.extend({
 	});
 	// Check if all the markers have been added
 	if (spotMap.markers.length == this.get('controller').get('controllers.spotsFind').get('length')) {
+	    //console.log(spotMap.markers.length);
+	    //console.log(this.get('controller').get('controllers.spotsFind').get('length'));
+	    //console.log(spotMap.bounds.length);
 	    // Fit the map on bounds
 	    spotMap.fitOnBounds();
 	}
@@ -147,7 +217,7 @@ App.SpotView = Ember.View.extend({
     eventManager: Ember.Object.create({
 	click: function(event) {
 	    // When an item is clicked, focus on its marker	    
-	    spotMap.focusOnMarker($(event.currentTarget).find('[role="spot-id"]').text());
+	    spotMap.centerOnMarker($(event.currentTarget).find('[role="spot-id"]').text());
 	}
     })
 });
@@ -174,12 +244,11 @@ App.SpotsNewController = Ember.Controller.extend({
 	// Save the model
 	spot.save();
 
-	// TODO: Display the newly created spot
-
 	// Remove the geo marker
 	spotMap.removeGeoMarker();
-	// Display all the spots
-	this.transitionToRoute('spots.find');
+
+	// Display the newly created spot
+	this.transitionToRoute('spots.spot',spot);
     }
 });
 
