@@ -10,11 +10,23 @@ App.Router.map(function () {
     //this.resource('spot/new', { path: '/spot/:spot_id' });
 });
 
+App.Adapter = DS.RESTAdapter.extend({
+  serializer: DS.RESTSerializer.extend({
+    primaryKey: function (type){
+      return '_id';
+   }
+  })
+});
 
 App.Store = DS.Store.extend({
-    revision: 12,
-    adapter: 'DS.FixtureAdapter'
+  revision: 12,
+  adapter: 'App.Adapter'
 });
+
+DS.RESTAdapter.reopen({
+  url: 'api'
+});
+
 
 App.SpotsRoute = Ember.Route.extend({
     /*setupController: function(controller, spot) {
@@ -57,68 +69,9 @@ App.Spot = DS.Model.extend({
     title: DS.attr('string'),
     description: DS.attr('string'),
     sports: DS.attr('string'),
-    longitude: DS.attr('integer'),
-    latitude: DS.attr('integer')
+    longitude: DS.attr('string'),
+    latitude: DS.attr('string')
 });
-
-App.Spot.FIXTURES = [
-    {
-	id:1,
-	title:'paintball75',
-	description:'Un super terrain de paintball',
-	sports:'paintball',
-	longitude:2.340841,
-	latitude:48.8650429
-    },
-    {
-	id:2,
-	title:'cinema de suresnes',
-	description:'Le meilleur cinema du grand Ouest',
-	sports:'cinema',
-	longitude:2.242201,
-	latitude:48.8649466
-    }/*,
-    {
-	id:3,
-	title:'cinema de suresnes',
-	description:'Le meilleur cinema du grand Ouest',
-	sports:'cinema',
-	longitude:2.242201,
-	latitude:48.7649466
-    },
-    {
-	id:4,
-	title:'cinema de suresnes',
-	description:'Le meilleur cinema du grand Ouest',
-	sports:'cinema',
-	longitude:2.342201,
-	latitude:48.7649466
-    },
-    {
-	id:5,
-	title:'cinema de suresnes',
-	description:'Le meilleur cinema du grand Ouest',
-	sports:'cinema',
-	longitude:2.142201,
-	latitude:48.7649466
-    },
-    {
-	id:6,
-	title:'cinema de suresnes',
-	description:'Le meilleur cinema du grand Ouest',
-	sports:'cinema',
-	longitude:2.142201,
-	latitude:48.8649466
-    },
-    {
-	id:7,
-	title:'cinema de suresnes',
-	description:'Le meilleur cinema du grand Ouest',
-	sports:'cinema',
-	longitude:2.242201,
-	latitude:48.8249466
-    }*/
-];
 
 App.SpotsNewView = Ember.View.extend({
     templateName: 'spots/new',
