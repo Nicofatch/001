@@ -63,7 +63,7 @@ var SpotMap = (function _SpotMap() {
 	    id: { value: 'geoPosition' },
 	    latitude: { value: e.latlng.lat },
 	    longitude: { value: e.latlng.lng },
-	    label: { value: message },
+	    title: { value: message },
 	    draggable: {value: true },
 	    icon: { value: 'icon-screenshot icon-large' },
 	    color: { value: 'red' }
@@ -73,11 +73,6 @@ var SpotMap = (function _SpotMap() {
 	// Display the marker
 	marker.LMarker.addTo(self.map);
 	
-	// if specified, display the label in a popup
-	if (typeof marker.label != "undefined") {
-	    marker.LMarker.bindPopup(marker.label);
-	}
-
 	// store the marker
 	self.geoPosition.marker = marker;
 
@@ -88,9 +83,12 @@ var SpotMap = (function _SpotMap() {
     };
 
 
-    self.centerOnMarker = function(id) {
+    self.focusOnMarker = function(id) {
+	var LMarker = self.markers.getItem(id).LMarker;
 	// Pan the map to the marker (smooth move)
-	self.map.panTo(self.markers.getItem(id).LMarker._latlng);
+	self.map.panTo(LMarker._latlng);
+	// Open the popup
+	LMarker.openPopup();
     };
 
     self.displayMap = function(position) {
@@ -111,9 +109,10 @@ var SpotMap = (function _SpotMap() {
 	    marker.LMarker.addTo(self.map);
 	    
 	    // if specified, display the label in a popup
-	    if (typeof marker.label != "undefined") {
-		marker.LMarker.bindPopup(marker.label);
-	    }
+	    //if (typeof marker.label != "undefined") {
+	    //	marker.LMarker.bindPopup(marker.label);
+	    //}
+
 	    // Update markers hashtable
 	    self.markers.setItem(marker.id, marker);
 
@@ -176,7 +175,11 @@ var Marker = (function _Marker() {
 	
 	// Create Leaflet marker
 	this.LMarker = L.marker([this.latitude,this.longitude], options);
-
+	
+	if (typeof this.title != "undefined") {
+	    this.LMarker.bindPopup(this.title);
+	}
+	
 	return this;
     };
 

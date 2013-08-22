@@ -59,13 +59,14 @@ App.SpotView = Ember.View.extend({
             var marker = Object.create(Marker, {
                 id: { value: $(this).find('[role=spot-id]').text() },
                 latitude: { value: $(this).find('[role=spot-latitude]').text() },
-                longitude: { value: $(this).find('[role=spot-longitude]').text() }
-            });
+                longitude: { value: $(this).find('[role=spot-longitude]').text() },
+		title: { value: $(this).find('[role=spot-title]').text() }
+	    });
             marker._init();
             // Add the marker to the map
             spotMap.addMarker(marker);
             // Center the map on the marker
-            spotMap.centerOnMarker(marker.id);
+            spotMap.focusOnMarker(marker.id);
         });
     }
 });
@@ -79,7 +80,8 @@ App.SpotListItemView = Ember.View.extend({
             var marker = Object.create(Marker, {
                 id: { value: $(this).find('[role=spot-id]').text() },
                 latitude: { value: $(this).find('[role=spot-latitude]').text() },
-                longitude: { value: $(this).find('[role=spot-longitude]').text() }
+                longitude: { value: $(this).find('[role=spot-longitude]').text() },
+		title: { value: $(this).find('[role=spot-title]').text() }
             });
             marker._init();
             // Add the marker to the map
@@ -95,7 +97,7 @@ App.SpotListItemView = Ember.View.extend({
     eventManager: Ember.Object.create({
         click: function(event) {
             // When an item is clicked, focus on its marker
-            spotMap.centerOnMarker($(event.currentTarget).find('[role="spot-id"]').text());
+            spotMap.focusOnMarker($(event.currentTarget).find('[role="spot-id"]').text());
 	}
     })
 });

@@ -12,7 +12,7 @@ App.Store = DS.Store.extend({
 });
 
 DS.RESTAdapter.reopen({
-    url: 'http://192.168.137.10:5001/api'
+    url: 'http://ec2-54-246-180-191.eu-west-1.compute.amazonaws.com:8080/api'
 });
 
 
